@@ -1,10 +1,12 @@
 package com.jakubspiewak.ashauthservice.service;
 
-import com.jakubspiewak.ashapimodellib.model.auth.UserCredentials;
-import com.jakubspiewak.ashauthservice.service.feign.UserService;
+import com.jakubspiewak.ashapimodellib.model.auth.ApiTokenInfo;
+import com.jakubspiewak.ashapimodellib.model.auth.ApiUserCredentials;
+import com.jakubspiewak.ashauthservice.feign.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Component
@@ -12,24 +14,27 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
 
   private final UserService userService;
-  private final JwtUtils jwtUtils;
+  private final JwtService jwtService;
 
   @Override
-  public String createToken(UserCredentials credentials) {
-    final var userId = userService.findByCredentials(credentials);
+  public String createToken(ApiUserCredentials credentials) {
+    final var userId = userService.findIdByCredentials(credentials);
 
-    return jwtUtils.createTokenForUser(userId);
+    return jwtService.createTokenForUser(userId);
   }
 
   @Override
-  public boolean isTokenValid(String token) {
-    return jwtUtils.isInvalid(token);
-  }
+  public ApiTokenInfo resolveToken(String token) {
+    final var claims = jwtService.getAllClaimsFromToken(token);
 
-  @Override
-  public UUID resolveToken(String token) {
-    final var userId = jwtUtils.getAllClaimsFromToken(token).getSubject();
+    final var userId = UUID.fromString(claims.getSubject());
+    final var expirationDate = claims.getExpiration();
+    final var isExpired = expirationDate.before(new Date());
 
-    return UUID.fromString(userId);
+    return ApiTokenInfo.builder()
+        .userId(userId)
+        .expirationDate(expirationDate)
+        .isExpired(isExpired)
+        .build();
   }
 }

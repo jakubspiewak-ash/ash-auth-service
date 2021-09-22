@@ -1,14 +1,11 @@
 package com.jakubspiewak.ashauthservice.service;
 
-import com.jakubspiewak.ashapimodellib.model.auth.UserCredentials;
-
-import java.util.UUID;
+import com.jakubspiewak.ashapimodellib.model.auth.ApiTokenInfo;
+import com.jakubspiewak.ashapimodellib.model.auth.ApiUserCredentials;
 
 public interface AuthService {
 
-  String createToken(UserCredentials credentials);
+  String createToken(ApiUserCredentials credentials);
 
-  boolean isTokenValid(String token);
-
-  UUID resolveToken(String token);
+  ApiTokenInfo resolveToken(String token);
 }
