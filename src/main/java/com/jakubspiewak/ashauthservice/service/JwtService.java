@@ -15,6 +15,7 @@ import static java.time.temporal.ChronoUnit.HOURS;
 
 @Component
 public class JwtService {
+  // TODO: use enviroment
   private static final String SECRET = "SECRETTTTTTTTTTTTTTTTTTTTTTTTTTTTTT";
   // TODO: decrease this amount
   private static final Long EXPIRATION_TOKEN_HOURS = 256L;

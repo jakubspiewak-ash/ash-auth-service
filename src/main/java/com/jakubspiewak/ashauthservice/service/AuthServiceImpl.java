@@ -23,6 +23,7 @@ public class AuthServiceImpl implements AuthService {
     return jwtService.createTokenForUser(userId);
   }
 
+  // TODO: validate if token is at least parseable
   @Override
   public ApiTokenInfo resolveToken(String token) {
     final var claims = jwtService.getAllClaimsFromToken(token);
@@ -31,6 +32,7 @@ public class AuthServiceImpl implements AuthService {
     final var expirationDate = claims.getExpiration();
     final var isExpired = expirationDate.before(new Date());
 
+    // TODO: make a change in model (isExpired -> isAccepted/isOK)
     return ApiTokenInfo.builder()
         .userId(userId)
         .expirationDate(expirationDate)
