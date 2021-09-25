@@ -23,20 +23,22 @@ public class AuthServiceImpl implements AuthService {
     return jwtService.createTokenForUser(userId);
   }
 
-  // TODO: validate if token is at least parseable
   @Override
   public ApiTokenInfo resolveToken(String token) {
-    final var claims = jwtService.getAllClaimsFromToken(token);
+    try {
+      final var claims = jwtService.getAllClaimsFromToken(token);
 
-    final var userId = UUID.fromString(claims.getSubject());
-    final var expirationDate = claims.getExpiration();
-    final var isExpired = expirationDate.before(new Date());
+      final var userId = UUID.fromString(claims.getSubject());
+      final var expirationDate = claims.getExpiration();
+      final var isAccepted = expirationDate.after(new Date());
 
-    // TODO: make a change in model (isExpired -> isAccepted/isOK)
-    return ApiTokenInfo.builder()
-        .userId(userId)
-        .expirationDate(expirationDate)
-        .isExpired(isExpired)
-        .build();
+      return ApiTokenInfo.builder()
+          .userId(userId)
+          .expirationDate(expirationDate)
+          .isAccepted(isAccepted)
+          .build();
+    } catch (Exception e) {
+      return ApiTokenInfo.builder().isAccepted(false).build();
+    }
   }
 }
